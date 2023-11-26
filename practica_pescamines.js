@@ -57,12 +57,17 @@ function crearTaulell(files, colum) {
 
                 var cellId = 'cell_' + i + '_' + j;
                 cella.id = cellId;
-
+                
                 button.onclick = function () {
                     this.disabled = true;
                     var x = this.dataset.x;
                     var y = this.dataset.y;
                     let con = 'cell_' + x + '_' + y;
+                    // for (let n = 0; n < mines.length; n++) {
+                    //     // Change the background image for all mines
+                    //     document.getElementById('cell_' + mines[n].x + '_' + mines[n].y).innerHTML = "";
+                    //     document.getElementById('cell_' + mines[n].x + '_' + mines[n].y).style.backgroundImage = "url('mina20px.jpg')";
+                    // }
                     if (esMina(x, y)) {
                         alert('Que has perdut.');
                         let buttons = document.getElementById('taulell').querySelectorAll('button');
@@ -77,8 +82,13 @@ function crearTaulell(files, colum) {
                        
                     } else {
                         const minesAdjacents = contarMinesAdjacents(x, y, mines);
+                        if(minesAdjacents==0){
+                            revealEmptycosta(x, y, mines);
+                        }
                         document.getElementById(con).textContent = minesAdjacents;
+                        
                     }
+                    
                 }
 
                 cella.appendChild(button);
@@ -121,27 +131,70 @@ function crearTaulell(files, colum) {
     // Function to count adjacent mines
     function contarMinesAdjacents(x, y, mines) {
         let count = 0;
+        // x-1,y
+        // x-1,y-1
+        // x-1,y+1
+        // x,y-1
+        // x,y+1
+        // x+1,y
+        // x+1,y-1
+        // x+1,y+1
+        if (esMina(x-1,y, mines)) {
+            count++;
+        }
+        if (esMina(x-1,y-1, mines)) {
+            count++;
+        }
+        if (esMina(x-1,y+1, mines)) {
+            count++;
+        }
+        if (esMina(x,y-1, mines)) {
+            count++;
+        }
+        if (esMina(x,y+1, mines)) {
+            count++;
+        }
+        if (esMina(x+1,y, mines)) {
+            count++;
+        }
+        if (esMina(x+1,y-1, mines)) {
+            count++;
+        }
+        if (esMina(x+1,y+1, mines)) {
+            count++;
+        }
 
-        if (esMina(x, y + 1, mines)) {
-            count++;
-        }
-        if (esMina(x + 1, y, mines)) {
-            count++;
-        }
-        if (esMina(x - 1, y, mines)) {
-            count++;
-        }
-        if (esMina(x - 1, y - 1, mines)) {
-            count++;
-        }
-        if (esMina(x + 1, y + 1, mines)) {
-            count++;
-        }
-        if (esMina(x, y - 1, mines)) {
-            count++;
-        }
         return count;
     }
 
+    function revealEmptycosta(x, y, mines) {
+        const cellId = 'cell_' + x + '_' + y;
+        const cell = document.getElementById(cellId);
+        const minesAdjacents = contarMinesAdjacents(x, y, mines);
+    
+        cell.textContent = minesAdjacents;
+        
+        if (minesAdjacents === 0) {
+            for (let i = x - 1; i <= x + 1; i++) {
+                for (let j = y - 1; j <= y + 1; j++) {
+                    if (i >= 0 && i < files && j >= 0 && j < colum) {
+                        const adjacentCellId = 'cell_' + i + '_' + j;
+                        const adjacentCell = document.getElementById(adjacentCellId);
+    
+                        if (!isNaN(adjacentCell.textContent)) {
+                            revealEmptycosta(i, j, mines);
+                        } else if (parseInt(adjacentCell.textContent) !== 0 || esMina(i,j)) {
+                            break; // Stop recursion if adjacent cell's minesAdjacents is not 0
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    
+
+
     return crearTaula();
 }
+
